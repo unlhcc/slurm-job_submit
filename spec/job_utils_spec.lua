@@ -1,0 +1,131 @@
+job_utils = require("job_utils")
+
+-- ###########################################################################
+describe("tonumber_suffix", function()
+    it("test1", function()
+        assert.same(4096, job_utils.tonumber_suffix("4kib"))
+    end)
+    it("test2", function()
+        assert.same(4000, job_utils.tonumber_suffix("4kb"))
+    end)
+    it("test3", function()
+        assert.same(1024^5, job_utils.tonumber_suffix("1P"))
+    end)
+    it("test4", function()
+        assert.same(4, job_utils.tonumber_suffix("4"))
+    end)
+    it("test5", function()
+        assert.same(4000, job_utils.tonumber_suffix("4000"))
+    end)
+end)
+
+-- ###########################################################################
+describe("parse_tres", function()
+    it("test1", function()
+        local obj1 = job_utils.parse_tres("gpu:v100,gpu:titanxp:2,item1:3,item2")
+        assert.same({
+            { name = "gpu", type = "v100", count = 1 },
+            { name = "gpu", type = "titanxp", count = 2 },
+            { name = "item1", count = 3 },
+            { name = "item2", count = 1 },
+        }, obj1)
+    end)
+    it("test2", function()
+        local obj1 = job_utils.parse_tres("gpu:1,,,item1:3,item2,,")
+        assert.same({
+            { name = "gpu", count = 1 },
+            { name = "item1", count = 3 },
+            { name = "item2", count = 1 },
+        }, obj1)
+    end)
+    it("test3", function()
+        local obj1 = job_utils.parse_tres("gpu:1k")
+        assert.same({
+            { name = "gpu", count = 1024 },
+        }, obj1)
+    end)
+    it("test_blank", function()
+        local obj1 = job_utils.parse_tres("")
+        assert.same({}, obj1)
+    end)
+    it("test_nil", function()
+        local obj1 = job_utils.parse_tres(nil)
+        assert.same({}, obj1)
+    end)
+end)
+
+-- ###########################################################################
+describe("has_tres", function()
+    it("test1", function()
+        local obj1 = job_utils.has_tres("gpu", "gpu:titanxp:0,item2")
+        assert.same(false, obj1)
+    end)
+    it("test2", function()
+        local obj1 = job_utils.has_tres("gpu", "gpu:0,gpu:titanxp:1,common:3,blah")
+        assert.same(true, obj1)
+    end)
+    it("test3", function()
+        local obj1 = job_utils.has_tres("gpu", "item1,gpu:titanxp,item2")
+        assert.same(true, obj1)
+    end)
+    it("test4", function()
+        local obj1 = job_utils.has_tres("gpu", "item1,gpu,item2")
+        assert.same(true, obj1)
+    end)
+    it("test_blank", function()
+        local obj1 = job_utils.has_tres("gpu", "")
+        assert.same(false, obj1)
+    end)
+end)
+
+-- ###########################################################################
+describe("parse_license", function()
+    it("test1", function()
+        local obj1 = job_utils.parse_license("common:123,item1:0,item2")
+        assert.same(obj1, {
+            common = 123,
+            item1 = 0,
+            item2 = 1,
+        })
+    end)
+    it("test2", function()
+        local obj1 = job_utils.parse_license("common:1,common:2")
+        assert.same({ common = 3, }, obj1)
+    end)
+    it("test3", function()
+        local obj1 = job_utils.parse_license("foo:1,,bar:2")
+        assert.same({ foo = 1, bar = 2, }, obj1)
+    end)
+    it("test4", function()
+        local obj1 = job_utils.parse_license("foo:1;bar:2")
+        assert.same({ foo = 1, bar = 2, }, obj1)
+    end)
+    it("test_blank", function()
+        local obj1 = job_utils.parse_license("")
+        assert.same({}, obj1)
+    end)
+    it("test_nil", function()
+        local obj1 = job_utils.parse_license(nil)
+        assert.same({}, obj1)
+    end)
+end)
+
+-- ###########################################################################
+describe("get_license_count", function()
+    it("test1", function()
+        local obj1 = job_utils.get_license_count("common", "common:123,item1:0,item2")
+        assert.same(123, obj1)
+    end)
+    it("test2", function()
+        local obj1 = job_utils.get_license_count("absent", "common:123,item1:0,item2")
+        assert.same(0, obj1)
+    end)
+    it("test3", function()
+        local obj1 = job_utils.get_license_count("common", "common:1,common:2,item1:1,item2,common")
+        assert.same(4, obj1)
+    end)
+    it("test_blank", function()
+        local obj1 = job_utils.get_license_count("blank", "")
+        assert.same(0, obj1)
+    end)
+end)
