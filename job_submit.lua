@@ -45,7 +45,7 @@ function job_rule_check(job_desc)
 	end
 
 	-- Jobs submitted to partition 'gpu' are rejected without a GPU GRES
-	if job_desc.partition == "gpu" and not job_utils.has_tres("gpu", job_desc.tres_per_node) then
+	if job_utils.has_partition("gpu", job_desc.partition) and not job_utils.has_tres("gpu", job_desc.tres_per_node) then
 		slurm.log_user("GPU jobs require --gres=gpu")
 		return slurm.ERROR
 	end

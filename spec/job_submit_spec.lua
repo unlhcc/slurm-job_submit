@@ -81,6 +81,21 @@ describe("job_rule_check", function()
         assert.same(nil, job_rule_check(jd_out))
         assert.same(jd_in, jd_out)
     end)
+    it("gpu partition, no gres", function()
+        -- Require GPU GRES on gpu partition
+        local jd = { partition = "gpu" }
+        assert.same(slurm.ERROR, job_rule_check(jd))
+    end)
+    it("gpu partition in list, no gres", function()
+        -- Require GPU GRES on gpu partition, even with partition list
+        local jd = { partition = "batch,gpu" }
+        assert.same(slurm.ERROR, job_rule_check(jd))
+    end)
+    it("gpu partition in list, with gres", function()
+        -- GPU GRES on gpu partition is OK
+        local jd = { partition = "gpu", tres_per_node = "gpu" }
+        assert.same(nil, job_rule_check(jd))
+    end)
 end)
 
 -- ###########################################################################

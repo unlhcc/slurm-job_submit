@@ -136,4 +136,15 @@ function job_utils.has_tres(tres, tres_str)
     return false
 end
 
+-- Return true if partition is listed in part_str, else false
+function job_utils.has_partition(partition, part_str)
+    if part_str == nil then return false end
+    for _, part in next, part_str:split(",") do
+        if part == partition then
+            return true
+        end
+    end
+    return false
+end
+
 return job_utils
