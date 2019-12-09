@@ -69,20 +69,9 @@ function job_router(job_desc)
 		return
 	end
 
-	-- Jobs with a GPU GRES are routed to gpu or gpu_short partitions
+	-- Jobs with a GPU GRES are routed to gpu partition
 	if job_utils.has_tres("gpu", job_desc.tres_per_node) then
-		-- time_limit is in minutes
-		if job_desc.time_limit < 6*60 then -- 6 hours
-			job_desc.partition = "gpu_short,gpu"
-		else
-			job_desc.partition = "gpu"
-		end
-	-- Jobs with high memory requirements (MB)
-	elseif job_desc.pn_min_memory > 65000 and
-			job_desc.pn_min_memory < 1e+12 then
-		-- Undefined memory comes through as some sort of INT_MAX.
-		-- We don't know INT_MAX, so compare to an impossibly huge number (1000PB).
-		job_desc.partition = "highmem,batch"
+		job_desc.partition = "gpu"
 	-- all other jobs
 	else
 		-- no-op
