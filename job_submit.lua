@@ -38,6 +38,11 @@ local function starts_with(str, start)
 end
 
 function job_rule_check(job_desc)
+        -- Copy tres_per_node from gres, if necessary (SLURM 17.02 compat workaround)
+        if job_desc.tres_per_node == nil then
+                rawset(job_desc, "tres_per_node", job_desc.gres)
+        end
+
 	-- Jobs using more than one common license are rejected
 	if job_utils.get_license_count("common", job_desc.licenses) > 1 then
 		slurm.log_user("Jobs are limited to 1 license for common")
@@ -64,6 +69,11 @@ function job_rule_check(job_desc)
 end
 
 function job_router(job_desc)
+        -- Copy tres_per_node from gres, if necessary (SLURM 17.02 compat workaround)
+        if job_desc.tres_per_node == nil then
+                rawset(job_desc, "tres_per_node", job_desc.gres)
+        end
+
 	-- Jobs submitted to a partition are not routed
 	if job_desc.partition then
 		return
