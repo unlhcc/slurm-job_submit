@@ -12,6 +12,9 @@ _G.slurm.ESLURM_INVALID_NODE_COUNT = 2006
 _G.slurm.ESLURM_INVALID_TIME_LIMIT = 2051
 _G.slurm.ESLURM_JOB_MISSING_SIZE_SPECIFICATION = 2008
 _G.slurm.ESLURM_MISSING_TIME_LIMIT = 8000
+-- mock our error codes not yet in lua
+_G.slurm.ESLURM_INVALID_LICENSES = 2048
+_G.slurm.ESLURM_INVALID_GRES = 2072
 -- mock the slurm output functions
 local function noop(...) end
 _G.slurm.log_error = noop
@@ -54,7 +57,7 @@ describe("job_rule_check", function()
     it("license=common:2", function()
         -- More than one common license is requested, reject job
         local jd = { licenses = "common:2" }
-        assert.same(slurm.ERROR, job_rule_check(jd))
+        assert.same(slurm.ESLURM_INVALID_LICENSES, job_rule_check(jd))
     end)
     it("work_dir /notcommon", function()
         -- Working directory is not /common, no changes
@@ -84,16 +87,16 @@ describe("job_rule_check", function()
     it("gpu partition, no gres", function()
         -- Require GPU GRES on gpu partition
         local jd = { partition = "gpu" }
-        assert.same(slurm.ERROR, job_rule_check(jd))
+        assert.same(slurm.ESLURM_INVALID_GRES, job_rule_check(jd))
     end)
     it("gpu partition in list, no gres", function()
         -- Require GPU GRES on gpu partition, even with partition list
         local jd = { partition = "batch,gpu" }
-        assert.same(slurm.ERROR, job_rule_check(jd))
+        assert.same(slurm.ESLURM_INVALID_GRES, job_rule_check(jd))
     end)
     it("gpu partition in list, with gres", function()
         -- GPU GRES on gpu partition is OK
-        local jd = { partition = "gpu", tres_per_node = "gpu" }
+        local jd = { partition = "gpu", gres = "gpu" }
         assert.same(nil, job_rule_check(jd))
     end)
 end)
@@ -109,7 +112,7 @@ describe("job_router", function()
         assert.same(jd_out, jd_in)
     end)
     it("gpu gres to gpu partition", function()
-        local jd_in = { partition = nil, tres_per_node = 'gpu', time_limit = 3*24*60 }
+        local jd_in = { partition = nil, gres = 'gpu', time_limit = 3*24*60 }
         local jd_out = deepcopy(jd_in)
         job_router(jd_out)
 
