@@ -41,13 +41,13 @@ function job_rule_check(job_desc)
 	-- Jobs using more than one common license are rejected
 	if job_utils.get_license_count("common", job_desc.licenses) > 1 then
 		slurm.log_user("Jobs are limited to 1 license for common")
-		return slurm.ERROR
+		return 2048 -- slurm.ESLURM_INVALID_LICENSES
 	end
 
 	-- Jobs submitted to partition 'gpu' are rejected without a GPU GRES
 	if job_utils.has_partition("gpu", job_desc.partition) and not job_utils.has_tres("gpu", job_desc.tres_per_node) then
 		slurm.log_user("GPU jobs require --gres=gpu")
-		return slurm.ERROR
+		return 2072 -- slurm.ESLURM_INVALID_GRES
 	end
 
 	-- Jobs using /common as work_dir require a common license
