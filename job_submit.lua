@@ -7,7 +7,7 @@
 --    calls job_rule_check to check job against HCC policies
 
 package.path = package.path .. ';/etc/slurm/?.lua'
-local job_utils = require("job_utils")
+local job_utils = require("job_submit_utils")
 
 function slurm_job_modify(job_desc, job_rec, part_list, modify_uid)
 	-- Check if job violates any rules

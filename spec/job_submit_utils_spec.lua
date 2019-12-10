@@ -1,4 +1,4 @@
-job_utils = require("job_utils")
+job_utils = require("job_submit_utils")
 
 -- ###########################################################################
 describe("tonumber_suffix", function()
