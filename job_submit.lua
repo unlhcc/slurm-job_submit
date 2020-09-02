@@ -64,6 +64,11 @@ function job_rule_check(job_desc)
 end
 
 function job_router(job_desc)
+	-- Jobs submitted by account 'sample' are forced to partition 'sample'
+	if job_desc.account == "sample" then
+		job_desc.partition = "sample"
+	end
+
 	-- Jobs submitted to a partition are not routed
 	if job_desc.partition then
 		return

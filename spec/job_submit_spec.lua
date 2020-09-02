@@ -109,7 +109,7 @@ describe("job_router", function()
         job_router(jd_out)
 
         -- Partition is defined, so job should be unchanged
-        assert.same(jd_out, jd_in)
+        assert.same(jd_in, jd_out)
     end)
     it("gpu gres to gpu partition", function()
         local jd_in = { partition = nil, gres = 'gpu', time_limit = 3*24*60 }
@@ -118,6 +118,15 @@ describe("job_router", function()
 
         -- The partition should be set to "gpu"
         jd_in.partition = "gpu"
-        assert.same(jd_out, jd_in)
+        assert.same(jd_in, jd_out)
+    end)
+    it("limit sample account jobs to sample partition", function()
+        local jd_in = { account = "sample", partition = "batch" }
+        local jd_out = deepcopy(jd_in)
+        job_router(jd_out)
+
+        -- The partition should be set to "sample"
+        jd_in.partition = "sample"
+        assert.same(jd_in, jd_out)
     end)
 end)
