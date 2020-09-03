@@ -120,6 +120,7 @@ describe("job_router", function()
         jd_in.partition = "gpu"
         assert.same(jd_in, jd_out)
     end)
+    -- Forcing accounts to a partition
     it("limit sample account jobs to sample partition", function()
         local jd_in = { account = "sample", partition = "batch" }
         local jd_out = deepcopy(jd_in)
@@ -127,6 +128,23 @@ describe("job_router", function()
 
         -- The partition should be set to "sample"
         jd_in.partition = "sample"
+        assert.same(jd_in, jd_out)
+    end)
+    it("limit sample default_account jobs without account to sample partition", function()
+        local jd_in = { account = nil, default_account = "sample", partition = "batch" }
+        local jd_out = deepcopy(jd_in)
+        job_router(jd_out)
+
+        -- The partition should be set to "sample"
+        jd_in.partition = "sample"
+        assert.same(jd_in, jd_out)
+    end)
+    it("do not limit notsample account jobs to sample partition", function()
+        local jd_in = { account = "notsample", default_account = "sample", partition = "batch" }
+        local jd_out = deepcopy(jd_in)
+        job_router(jd_out)
+
+        -- The partition should be unchanged
         assert.same(jd_in, jd_out)
     end)
 end)

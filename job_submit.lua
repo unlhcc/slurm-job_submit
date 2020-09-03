@@ -65,7 +65,7 @@ end
 
 function job_router(job_desc)
 	-- Jobs submitted by account 'sample' are forced to partition 'sample'
-	if job_desc.account == "sample" then
+	if job_desc.account == "sample" or (job_desc.account == nil and job_desc.default_account == "sample") then
 		job_desc.partition = "sample"
 	end
 
